@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      var xhr = new XMLHttpRequest();
+      var url =
+        "http://swopenAPI.seoul.go.kr/api/subway/517974727179756237314759514967/json/realtimeStationArrival/0/5/서울";
+      xhr.open("GET", url);
+      xhr.onreadystatechange = function () {
+        if (this.readyState == xhr.DONE) {
+          // <== 정상적으로 준비되었을때
+          if (xhr.status == 200 || xhr.status == 201) {
+            // <== 호출 상태가 정상적일때
+            alert(
+              "Status: " +
+                this.status +
+                "\nHeaders: " +
+                JSON.stringify(this.getAllResponseHeaders()) +
+                "\nBody: " +
+                this.responseText
+            );
+          }
+        }
+      };
+      xhr.send("");
+
+      const stationId = "SEARCH_STATION_ID"; // 역 ID
+      const apiKey = "517974727179756237314759514967"; // API 키
+      const apiUrl = `http://swopenAPI.seoul.go.kr/api/subway/${517974727179756237314759514967}/json/shortestRoute/0/5/${stationId}`;
+
+      fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => console.log(data));
+
+      const shortestRoute = data.shortestRoute;
+
+      // 출발역
+      const startStation = shortestRoute.startSubwayStationNm;
+      // 도착역
+      const endStation = shortestRoute.endSubwayStationNm;
+      // 총 소요 시간 (분 단위)
+      const totalDuration = shortestRoute.totalTravelTime;
+      // 경로 정보
+      const routeInfo = shortestRoute.subwayRouteList.map((route) => {
+        return {
+          line: route.subwayRouteNm,
+          startStation: route.statnTnm,
+          endStation: route.endStatnTnm,
+          duration: route.travelTime,
+        };
+      });
+    </script>
+  </body>
+</html>

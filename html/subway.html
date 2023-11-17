@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <body>
+    <button class="button btn-primary" id="subwayButton">click</button>
+
+    <button class="button btn-primary" id="subwayButton2">click2</button>
+
+    <div class="container">
+      <ul>
+        <li></li>
+        <li></li>
+        <li></li>
+        <li></li>
+      </ul>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.6.3.min.js"
+      integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAk8ITTtwbvpBVZ4X1Yupb9EEIp1dN3pwQ",
+        authDomain: "mpr-project-380807.firebaseapp.com",
+        databaseURL: "https://mpr-project-380807-default-rtdb.firebaseio.com",
+        projectId: "mpr-project-380807",
+        storageBucket: "mpr-project-380807.appspot.com",
+        messagingSenderId: "421127938914",
+        appId: "1:421127938914:web:c62f90390cdeafd394c23b",
+      };
+      firebase.initializeApp(firebaseConfig);
+
+      const db = firebase.firestore();
+      const datatest = [];
+      const test = [];
+
+      var xhr = new XMLHttpRequest();
+      var url =
+        "http://openapi.seoul.go.kr:8088/4a6e74646979756232386356685275/json/subwayStationMaster/1/765"; /* URL */
+      xhr.open("GET", url);
+      xhr.onreadystatechange = function () {
+        if (this.readyState == xhr.DONE) {
+          // <== 정상적으로 준비되었을때
+          if (xhr.status == 200 || xhr.status == 201) {
+            // <== 호출 상태가 정상적일때
+            var response = JSON.parse(xhr.responseText); // API 응답을 JavaScript 객체로 변환
+            var sub = response.subwayStationMaster.row; // API 응답 객체에서 데이터를 추출하여 sub 변수에 할당
+            document.querySelector(".container").innerHTML = sub[0].STATION_NM;
+            const n = 1;
+            document
+              .querySelector("#subwayButton")
+              .addEventListener("click", (event) => {
+                for (datam of sub) {
+                  if (datam) {
+                    datatest.push({
+                      name: datam.STATN_NM,
+                      line_num: datam.ROUTE,
+                      position_x: parseFloat(datam.CRDNT_X),
+                      position_y: parseFloat(datam.CRDNT_Y),
+                    });
+                  }
+                  var li = `<ul>
+                                      <li>${datam.STATN_NM}</li>
+                                      <li>${datam.ROUTE}</li>
+                                      <li>${datam.CRDNT_X}</li>
+                                      <li>${datam.CRDNT_Y}</li>
+                            </ul>`;
+                  $(`.container`).append(li);
+                }
+
+                console.log(datatest);
+                for (let i = 0; i < 765; i++) {
+                  let flag = 0;
+                  for (let j = 0; j < 267; j++) {
+                    if (myArray[j].stationName === datatest[i].name) {
+                      datatest[i].nextStation = myArray[j].nextStation;
+                      datatest[i].beforeStaion = myArray[j].beforeStaion;
+                      datatest[i].nextTime = myArray[j].nextTime;
+                      datatest[i].beforeTime = myArray[j].beforeTime;
+                      flag = 1;
+
+                      myArray[j].X = datatest[i].position_x;
+                      myArray[j].Y = datatest[i].position_y;
+                      console.log(myArray[j]);
+                      continue;
+                    }
+                  }
+                  if (flag === 0) {
+                    datatest[i].nextStation = null;
+                    datatest[i].beforeStaion = null;
+                    datatest[i].nextTime = null;
+                    datatest[i].beforeTime = null;
+                  }
+                }
+                console.log(datatest.length);
+              });
+          }
+        }
+      };
+      xhr.send("");
+
+      //데이터 삽입 완료(역 이름,좌표,호선)
+
+      // var xhr = new XMLHttpRequest();
+      // var url =
+      //   "http://openapi.seoul.go.kr:8088/517974727179756237314759514967/json/StationDstncReqreTimeHm/1/267"; /* URL */
+      // xhr.open("GET", url);
+      // xhr.onreadystatechange = function () {
+      //   if (this.readyState == xhr.DONE) {
+      //     // <== 정상적으로 준비되었을때
+      //     if (xhr.status == 200 || xhr.status == 201) {
+      //       // <== 호출 상태가 정상적일때
+      //       var response = JSON.parse(xhr.responseText); // API 응답을 JavaScript 객체로 변환
+      //       console.log(response);
+      //       document
+      //         .querySelector("#subwayButton2")
+      //         .addEventListener("click", (event) => {
+      //           for (datam of response.StationDstncReqreTimeHm.row) {
+      //             if (datam) {
+      //               console.dir(datam);
+      //             }
+      //           }
+      //         });
+      //     }
+      //   }
+      // };
+      // xhr.send("");
+    </script>
+
+    <script>
+      const myArray = [];
+      myArray.push({
+        line: "1호선",
+        stationName: "서울역",
+        nextStation: "시청",
+        nextTime: 2.0,
+        beforeStaion: null,
+        beforeTime: null,
+      });
+      fetch("/subwaydata.json")
+        .then((response) => response.json()) // JSON 데이터를 파싱
+        .then((data) => {
+          console.log(data.DATA.length);
+
+          for (let j = 1; j < data.DATA.length - 2; j++) {
+            // for-in 대신 for 문 사용
+            if (data.DATA[j].line !== data.DATA[j - 1].line) {
+              console.log("호선 변경");
+              myArray.push({
+                line: data.DATA[j].line,
+                stationName: data.DATA[j].statn_nm,
+                nextStation: data.DATA[j + 1].statn_nm,
+                nextTime: parseFloat(data.DATA[j].mnt),
+                beforeStaion: null,
+                beforeTime: null,
+              });
+              continue;
+            }
+            if (data.DATA[j].line !== data.DATA[j + 1].line) {
+              console.log("마지막 호선");
+              myArray.push({
+                line: data.DATA[j].line,
+                stationName: data.DATA[j].statn_nm,
+                nextStation: null,
+                nextTime: null,
+                beforeStaion: data.DATA[j - 1].statn_nm,
+                beforeTime: parseFloat(data.DATA[j - 1].mnt),
+              });
+              continue;
+            }
+            myArray.push({
+              line: data.DATA[j].line,
+              stationName: data.DATA[j].statn_nm,
+              nextStation: data.DATA[j + 1].statn_nm,
+              nextTime: parseFloat(data.DATA[j].mnt),
+              beforeStaion: data.DATA[j - 1].statn_nm,
+              beforeTime: parseFloat(data.DATA[j - 1].mnt),
+            });
+          }
+          myArray.push({
+            line: "8호선",
+            stationName: "강동구청",
+            nextStation: "천호",
+            nextTime: 1.2,
+            beforeStaion: "몽촌토성",
+            beforeTime: 2.0,
+          });
+          myArray.push({
+            line: "8호선",
+            stationName: "천호",
+            nextStation: null,
+            nextTime: null,
+            beforeStaion: "강동구청",
+            beforeTime: 1.2,
+          });
+          console.log(myArray); // fetch() 콜백 함수 내부로 이동
+          console.log(datatest);
+        })
+        .catch((error) => {
+          console.log("err");
+        });
+    </script>
+  </body>
+</html>

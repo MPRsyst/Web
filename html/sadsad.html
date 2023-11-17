@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>BBS Webpage</title>
+  </head>
+  <body>
+    <h1>BBS Webpage</h1>
+    <form>
+      <label>Username:</label>
+      <input type="text" id="username">
+      <br><br>
+      <label>Post:</label>
+      <textarea id="post"></textarea>
+      <br><br>
+      <button type="button" onclick="submitPost()">Submit</button>
+    </form>
+    <br><br>
+    <h2>Posts:</h2>
+    <div id="posts"></div>
+    <script>
+      function submitPost() {
+        var username = document.getElementById("username").value;
+        var post = document.getElementById("post").value;
+        if (username === "" || post === "") {
+          alert("Both username and post are required.");
+          return;
+        }
+        var postsContainer = document.getElementById("posts");
+        var newPost = document.createElement("div");
+        newPost.innerHTML = "<b>" + username + "</b>" + ": " + post + 
+                            " <button type='button' onclick='deletePost(this)'>Delete</button>";
+        postsContainer.appendChild(newPost);
+      }
+
+      function deletePost(element) {
+        element.parentNode.remove();
+      }
+    </script>
+
+// 구글 지도 API 불러오기
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCaT4dFQQDhNm97EXEGP2Wh1w915stO97Q&libraries=places"></script>
+<script>
+// 위도와 경도 정보를 가진 변수
+const center = { lat: 37.5651, lng: 126.9896 };
+
+// 검색할 장소의 종류
+const type = "restaurant";
+
+// 반경(m) 설정
+const radius = 500;
+
+// PlacesService 객체 생성
+const service = new google.maps.places.PlacesService(map);
+
+// 장소 검색 요청
+service.nearbySearch({
+  location: center,
+  radius: radius,
+  type: [type],
+}, function(results, status) {
+  if (status === google.maps.places.PlacesServiceStatus.OK) {
+    console.log(results);
+  }
+});
+</script>
+  </body>
+</html>
